@@ -1,0 +1,1319 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Arnes-Game-Welt - Simultane Party & Decision Games</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts: Space Grotesk -->
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@700;900&family=Inter:wght@600;800;900&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Space Grotesk', 'Inter', sans-serif;
+            background-color: #f3f0e6;
+            background-image: radial-gradient(#000 10%, transparent 11%);
+            background-size: 20px 20px;
+        }
+
+        /* Neo-Brutalism Design Utilities */
+        .nb-card {
+            background-color: #ffffff;
+            border: 4px solid #000000;
+            box-shadow: 6px 6px 0px #000000;
+            border-radius: 12px;
+        }
+
+        .nb-btn {
+            border: 4px solid #000000;
+            box-shadow: 4px 4px 0px #000000;
+            border-radius: 10px;
+            font-weight: 900;
+            transition: all 0.1s ease;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .nb-btn:hover {
+            transform: translate(-2px, -2px);
+            box-shadow: 6px 6px 0px #000000;
+        }
+
+        .nb-btn:active {
+            transform: translate(2px, 2px);
+            box-shadow: 2px 2px 0px #000000;
+        }
+
+        .nb-input {
+            border: 4px solid #000000;
+            box-shadow: 4px 4px 0px #000000;
+            border-radius: 8px;
+            outline: none;
+            font-weight: 800;
+        }
+
+        /* Distinct Neo-Brutalist Colors */
+        .bg-neo-yellow { background-color: #FFDE59; }
+        .bg-neo-pink { background-color: #FF66C4; }
+        .bg-neo-cyan { background-color: #00F0FF; }
+        .bg-neo-green { background-color: #00FF66; }
+        .bg-neo-orange { background-color: #FF914D; }
+        .bg-neo-purple { background-color: #C39EA0; }
+        .bg-neo-red { background-color: #FF5757; }
+        .bg-neo-blue { background-color: #5271FF; }
+
+        /* Custom Scrollbars */
+        ::-webkit-scrollbar {
+            width: 12px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #fff;
+            border-left: 4px solid #000;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #FFDE59;
+            border: 3px solid #000;
+            border-radius: 6px;
+        }
+
+        @keyframes pulse-fast {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.08); }
+        }
+        .animate-pulse-fast {
+            animation: pulse-fast 0.6s infinite;
+        }
+    </style>
+</head>
+<body class="min-h-screen text-black flex flex-col p-2 md:p-6 overflow-x-hidden">
+
+    <!-- Header & Nav Bar -->
+    <header class="nb-card bg-neo-yellow p-4 mb-6 flex flex-wrap items-center justify-between gap-4">
+        <div class="flex items-center gap-3">
+            <div class="bg-black text-white p-3 rounded-lg text-2xl font-black rotate-[-3deg]">
+                ⚡ ARNES-GAME-WELT
+            </div>
+            <h1 class="text-xl md:text-2xl font-black tracking-tight hidden sm:block uppercase">
+                Simultane Party- & Entscheidungstools
+            </h1>
+        </div>
+
+        <div class="flex items-center gap-2 md:gap-4 flex-wrap">
+            <!-- Global Group Selector -->
+            <div class="nb-card bg-white p-2 flex items-center gap-2">
+                <span class="font-black text-xs md:text-sm uppercase"><i class="fa-solid fa-users"></i> Teams:</span>
+                <div class="flex gap-1" id="group-selector-btns">
+                    <!-- Populated dynamically (2-6) -->
+                </div>
+            </div>
+
+            <!-- GitHub Pages Info Modal Button -->
+            <button onclick="toggleGithubModal()" class="nb-btn bg-neo-cyan px-3 py-2 text-xs md:text-sm flex items-center gap-1">
+                <i class="fa-brands fa-github text-lg"></i> GitHub Pages
+            </button>
+        </div>
+    </header>
+
+    <!-- Main App Container -->
+    <main class="flex-1 grid grid-cols-1 lg:grid-cols-4 gap-6">
+
+        <!-- Sidebar: Team Config & Dynamic Leaderboard -->
+        <aside class="lg:col-span-1 space-y-6">
+            <!-- Teams Setup -->
+            <section class="nb-card bg-neo-pink p-4">
+                <h2 class="text-lg font-black uppercase mb-3 flex items-center justify-between">
+                    <span><i class="fa-solid fa-user-group"></i> Teams (<span id="team-count-display">3</span>)</span>
+                    <button onclick="randomizeTeamNames()" class="text-xs bg-black text-white px-2 py-1 rounded hover:bg-gray-800">
+                        <i class="fa-solid fa-shuffle"></i> Mix
+                    </button>
+                </h2>
+                
+                <div id="teams-container" class="space-y-2">
+                    <!-- Dynamic Team List Inputs -->
+                </div>
+            </section>
+
+            <!-- Games Navigator -->
+            <section class="nb-card bg-neo-green p-4">
+                <h2 class="text-lg font-black uppercase mb-3"><i class="fa-solid fa-gamepad"></i> 9 Simultane Games</h2>
+                <div class="grid grid-cols-1 gap-2 max-h-[500px] overflow-y-auto pr-1" id="games-nav-list">
+                    <!-- Rendered by JS -->
+                </div>
+            </section>
+        </aside>
+
+        <!-- Main Stage for Game Play -->
+        <section class="lg:col-span-3">
+            <div class="nb-card bg-white p-4 md:p-6 min-h-[600px] flex flex-col justify-between" id="game-stage">
+                <!-- Game Header -->
+                <div class="flex justify-between items-center border-b-4 border-black pb-4 mb-4 flex-wrap gap-2">
+                    <div class="flex items-center gap-3">
+                        <span id="game-icon" class="text-3xl md:text-4xl">🎮</span>
+                        <div>
+                            <h2 id="game-title" class="text-2xl md:text-3xl font-black uppercase">Spiel Auswählen</h2>
+                            <p id="game-subtitle" class="text-xs md:text-sm font-extrabold text-gray-700">Wähle links ein Game für die faire Entscheidung!</p>
+                        </div>
+                    </div>
+                    <button onclick="resetCurrentGame()" class="nb-btn bg-neo-orange px-3 py-1 text-sm flex items-center gap-1">
+                        <i class="fa-solid fa-rotate"></i> Neustart
+                    </button>
+                </div>
+
+                <!-- Game Dynamic Container -->
+                <div id="game-active-area" class="flex-1 flex flex-col items-center justify-center relative min-h-[380px] p-2">
+                    <!-- Game specific screens render here -->
+                </div>
+
+                <!-- Game Status & Scoreboard Output Footer -->
+                <div id="game-footer" class="border-t-4 border-black pt-4 mt-4 bg-gray-50 rounded-lg p-3">
+                    <h3 class="font-black text-sm uppercase mb-2"><i class="fa-solid fa-trophy text-yellow-500"></i> Ergebnis / Platzierung:</h3>
+                    <div id="game-results-bar" class="flex flex-wrap gap-2 text-sm font-extrabold">
+                        <span class="text-gray-400">Bereit für den Start...</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Modal for GitHub Pages Deploy Instructions -->
+    <div id="github-modal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="nb-card bg-neo-yellow max-w-2xl w-full p-6 max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-center border-b-4 border-black pb-3 mb-4">
+                <h3 class="text-2xl font-black uppercase flex items-center gap-2">
+                    <i class="fa-brands fa-github text-3xl"></i> GitHub Pages Anleitung
+                </h3>
+                <button onclick="toggleGithubModal()" class="nb-btn bg-neo-red text-white text-xl px-3 py-1">&times;</button>
+            </div>
+            <div class="space-y-4 text-sm font-bold leading-relaxed">
+                <p class="bg-white p-3 rounded-lg border-2 border-black">
+                    Arnes-Game-Welt läuft komplett auf jedem Smartphone, Tablet oder Laptop ohne Server!
+                </p>
+                <ol class="list-decimal list-inside space-y-3 bg-white p-4 rounded-lg border-2 border-black">
+                    <li>Erstelle ein Repository auf <strong>GitHub.com</strong>.</li>
+                    <li>Füge den Code in eine Datei namens <strong><code class="bg-yellow-200 px-1 rounded">index.html</code></strong> ein.</li>
+                    <li>Gehe zu <strong>Settings &rarr; Pages</strong> und wähle den Branch <code class="bg-gray-200 px-1">main</code>.</li>
+                    <li>Fertig! Arnes-Game-Welt ist sofort online erreichbar!</li>
+                </ol>
+            </div>
+            <div class="mt-6 text-right">
+                <button onclick="toggleGithubModal()" class="nb-btn bg-black text-white px-6 py-2">Alles klar!</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Application JavaScript Logic -->
+    <script>
+        /* ==================== GLOBAL APP STATE ==================== */
+        const APP_STATE = {
+            teamCount: 3, // Default 3 (2 to 6)
+            teams: [
+                { id: 1, name: "Gruppe 1", color: "#FFDE59", shortcut: "A", key: "a" },
+                { id: 2, name: "Gruppe 2", color: "#FF66C4", shortcut: "S", key: "s" },
+                { id: 3, name: "Gruppe 3", color: "#00F0FF", shortcut: "D", key: "d" },
+                { id: 4, name: "Gruppe 4", color: "#00FF66", shortcut: "J", key: "j" },
+                { id: 5, name: "Gruppe 5", color: "#FF914D", shortcut: "K", key: "k" },
+                { id: 6, name: "Gruppe 6", color: "#5271FF", shortcut: "L", key: "l" }
+            ],
+            activeGameId: 'ssp',
+            scores: {}
+        };
+
+        /* ==================== SOUND SYNTHESIZER ==================== */
+        const AudioCtx = window.AudioContext || window.webkitAudioContext;
+        let audioCtx = null;
+
+        function initAudio() {
+            if (!audioCtx) audioCtx = new AudioCtx();
+        }
+
+        function playBeep(freq = 440, type = 'sine', duration = 0.15) {
+            try {
+                initAudio();
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = type;
+                osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+                gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start();
+                osc.stop(audioCtx.currentTime + duration);
+            } catch (e) { console.log(e); }
+        }
+
+        function playFanfare() {
+            [523.25, 659.25, 783.99, 1046.50].forEach((f, idx) => {
+                setTimeout(() => playBeep(f, 'triangle', 0.25), idx * 120);
+            });
+        }
+
+        function playBuzzerSound() {
+            playBeep(150, 'sawtooth', 0.3);
+        }
+
+        /* ==================== 9 SIMULTANE / TURNIER GAMES ==================== */
+        const GAMES = [
+            { id: 'ssp', name: '1. Schere, Stein, Papier', icon: '✂️', desc: 'Simultanes Wählen aller Teams gleichzeitig' },
+            { id: 'buzzer', name: '2. Reaktions-Blitz', icon: '⚡', desc: 'Wer drückt am schnellsten bei GRÜN?' },
+            { id: 'finger', name: '3. Touch-Roulette', icon: '👆', desc: 'Alle drücken gleichzeitig! Der Zufall erwählt ein Team.' },
+            { id: 'mashing', name: '4. Button-Mashing-Rennen', icon: '💥', desc: '5 Sekunden Button Spamming aller Teams gleichzeitig!' },
+            { id: 'cards', name: '5. Simultanes Karten-Ziehen', icon: '🃏', desc: 'Alle ziehen simultan! Die höchste Karte gewinnt.' },
+            { id: 'timer5s', name: '6. 5,00s Zeit-Gefühl', icon: '⏱️', desc: 'Simultanes oder schnelles Stop-Timing für alle' },
+            { id: 'stroop', name: '7. Farb-Chaos KO-Turnier', icon: '🎨', desc: 'Spannendes 1-gegen-1 KO-Duell der Teams!' },
+            { id: 'schatz', name: '8. Schätzfragen-Showdown', icon: '📐', desc: 'Simultane Schätzung mit 100 Fragen & Stechen!' },
+            { id: 'sound', name: '9. Tonhöhen-Sensor', icon: '🎵', desc: 'Welcher Ton war höher? Schnelligkeit entscheidet!' }
+        ];
+
+        /* ==================== CORE INITIALIZATION ==================== */
+        window.addEventListener('DOMContentLoaded', () => {
+            renderGroupSelector();
+            renderTeamInputs();
+            renderGamesList();
+            loadGame(APP_STATE.activeGameId);
+
+            window.addEventListener('keydown', handleGlobalKeyPress);
+        });
+
+        function toggleGithubModal() {
+            document.getElementById('github-modal').classList.toggle('hidden');
+        }
+
+        function renderGroupSelector() {
+            const container = document.getElementById('group-selector-btns');
+            container.innerHTML = '';
+            for (let i = 2; i <= 6; i++) {
+                const btn = document.createElement('button');
+                btn.className = `nb-btn px-2.5 py-1 text-xs ${APP_STATE.teamCount === i ? 'bg-black text-white' : 'bg-gray-100 text-black'}`;
+                btn.innerText = `${i}`;
+                btn.onclick = () => setTeamCount(i);
+                container.appendChild(btn);
+            }
+            document.getElementById('team-count-display').innerText = APP_STATE.teamCount;
+        }
+
+        function setTeamCount(count) {
+            APP_STATE.teamCount = count;
+            renderGroupSelector();
+            renderTeamInputs();
+            resetCurrentGame();
+        }
+
+        function renderTeamInputs() {
+            const container = document.getElementById('teams-container');
+            container.innerHTML = '';
+            for (let i = 0; i < APP_STATE.teamCount; i++) {
+                const team = APP_STATE.teams[i];
+                const div = document.createElement('div');
+                div.className = "flex items-center gap-2 p-1 bg-white rounded border-2 border-black";
+                div.style.borderLeftWidth = "10px";
+                div.style.borderLeftColor = team.color;
+
+                div.innerHTML = `
+                    <span class="font-black text-xs px-1 bg-black text-white rounded">${team.shortcut}</span>
+                    <input type="text" value="${team.name}" onchange="updateTeamName(${i}, this.value)" 
+                           class="w-full text-xs md:text-sm font-bold bg-transparent border-none outline-none">
+                    <input type="color" value="${team.color}" onchange="updateTeamColor(${i}, this.value)"
+                           class="w-6 h-6 border-2 border-black rounded cursor-pointer p-0">
+                `;
+                container.appendChild(div);
+            }
+        }
+
+        function updateTeamName(index, val) {
+            if (val.trim() !== "") APP_STATE.teams[index].name = val.trim();
+        }
+
+        function updateTeamColor(index, color) {
+            APP_STATE.teams[index].color = color;
+            renderTeamInputs();
+            loadGame(APP_STATE.activeGameId);
+        }
+
+        function randomizeTeamNames() {
+            const funNames = ["Die Bisons", "Ananas Crew", "Pixel Kings", "Turbo Schnecken", "Buzzer Bosses", "Chaos Club", "Disco Dinos"];
+            const shuffled = [...funNames].sort(() => Math.random() - 0.5);
+            for (let i = 0; i < APP_STATE.teamCount; i++) {
+                APP_STATE.teams[i].name = shuffled[i] || `Gruppe ${i + 1}`;
+            }
+            renderTeamInputs();
+            resetCurrentGame();
+        }
+
+        function renderGamesList() {
+            const container = document.getElementById('games-nav-list');
+            container.innerHTML = '';
+            GAMES.forEach(g => {
+                const active = g.id === APP_STATE.activeGameId;
+                const btn = document.createElement('button');
+                btn.className = `nb-btn text-left p-2 md:p-3 flex items-center justify-between transition-all ${active ? 'bg-neo-yellow' : 'bg-white'}`;
+                btn.onclick = () => loadGame(g.id);
+                btn.innerHTML = `
+                    <div class="flex items-center gap-2">
+                        <span class="text-xl">${g.icon}</span>
+                        <div>
+                            <div class="font-black text-xs md:text-sm uppercase">${g.name}</div>
+                            <div class="text-[10px] text-gray-700 font-bold leading-tight hidden sm:block">${g.desc}</div>
+                        </div>
+                    </div>
+                    <i class="fa-solid fa-chevron-right text-xs"></i>
+                `;
+                container.appendChild(btn);
+            });
+        }
+
+        function loadGame(gameId) {
+            APP_STATE.activeGameId = gameId;
+            renderGamesList();
+            const g = GAMES.find(x => x.id === gameId);
+            document.getElementById('game-icon').innerText = g.icon;
+            document.getElementById('game-title').innerText = g.name;
+            document.getElementById('game-subtitle').innerText = g.desc;
+
+            document.getElementById('game-results-bar').innerHTML = `<span class="text-gray-400">Spiel gestartet. Viel Erfolg!</span>`;
+
+            if (window.activeGameCleanup) window.activeGameCleanup();
+
+            switch (gameId) {
+                case 'ssp': initGameSSP(); break;
+                case 'buzzer': initGameBuzzer(); break;
+                case 'finger': initGameFinger(); break;
+                case 'mashing': initGameMashing(); break;
+                case 'cards': initGameCards(); break;
+                case 'timer5s': initGameTimer5s(); break;
+                case 'stroop': initGameStroopTurnier(); break;
+                case 'schatz': initGameSchatz(); break;
+                case 'sound': initGameSound(); break;
+            }
+        }
+
+        function resetCurrentGame() {
+            loadGame(APP_STATE.activeGameId);
+        }
+
+        function getActiveTeams() {
+            return APP_STATE.teams.slice(0, APP_STATE.teamCount);
+        }
+
+        function handleGlobalKeyPress(e) {
+            if (e.target.tagName === 'INPUT') return;
+            const key = e.key.toUpperCase();
+            if (window.gameKeyHandler) {
+                window.gameKeyHandler(key);
+            }
+        }
+
+        function updateResultsDisplay(resultsArray) {
+            const bar = document.getElementById('game-results-bar');
+            bar.innerHTML = '';
+            resultsArray.forEach((r, idx) => {
+                const badge = document.createElement('div');
+                badge.className = "nb-card px-3 py-1 flex items-center gap-2";
+                badge.style.backgroundColor = r.team.color;
+                badge.innerHTML = `
+                    <span class="font-black bg-black text-white rounded-full w-5 h-5 flex items-center justify-center text-xs">#${idx + 1}</span>
+                    <span class="font-black">${r.team.name}:</span>
+                    <span class="font-extrabold">${r.result}</span>
+                `;
+                bar.appendChild(badge);
+            });
+        }
+
+        /* ==================== GAME 1: SCHERE STEIN PAPIER (SIMULTAN) ==================== */
+        function initGameSSP() {
+            const area = document.getElementById('game-active-area');
+            const teams = getActiveTeams();
+            let choices = {};
+
+            const choicesIcons = { 'Stein': '✊', 'Schere': '✂️', 'Papier': '📄' };
+
+            let html = `<div class="w-full max-w-2xl text-center space-y-4">
+                <p class="font-black text-lg">Jedes Team wählt simultan & verdeckt eine Geste:</p>
+                <div class="grid grid-cols-1 md:grid-cols-${Math.min(teams.length, 3)} gap-3">`;
+
+            teams.forEach(t => {
+                html += `
+                    <div class="nb-card p-3 text-center" style="background-color: ${t.color}">
+                        <h4 class="font-black mb-2">${t.name} (${t.shortcut})</h4>
+                        <div id="ssp-choice-display-${t.id}" class="text-3xl my-2">❓</div>
+                        <div class="flex justify-center gap-1">
+                            <button onclick="makeSSPChoice(${t.id}, 'Stein')" class="nb-btn bg-white px-2 py-1 text-sm">✊</button>
+                            <button onclick="makeSSPChoice(${t.id}, 'Schere')" class="nb-btn bg-white px-2 py-1 text-sm">✂️</button>
+                            <button onclick="makeSSPChoice(${t.id}, 'Papier')" class="nb-btn bg-white px-2 py-1 text-sm">📄</button>
+                        </div>
+                    </div>
+                `;
+            });
+
+            html += `</div>
+                <button id="ssp-eval-btn" onclick="evaluateSSP()" class="nb-btn bg-neo-yellow px-6 py-3 text-lg font-black mt-4 hidden">
+                    <i class="fa-solid fa-bolt"></i> SIMULTAN AUFLÖSEN & AUSWERTEN
+                </button>
+            </div>`;
+
+            area.innerHTML = html;
+
+            window.makeSSPChoice = (teamId, choice) => {
+                choices[teamId] = choice;
+                playBeep(600, 'sine', 0.1);
+                document.getElementById(`ssp-choice-display-${teamId}`).innerText = '✅ Bereit';
+                
+                if (Object.keys(choices).length === teams.length) {
+                    document.getElementById('ssp-eval-btn').classList.remove('hidden');
+                }
+            };
+
+            window.evaluateSSP = () => {
+                playFanfare();
+                let results = [];
+                teams.forEach(t => {
+                    const c = choices[t.id];
+                    document.getElementById(`ssp-choice-display-${t.id}`).innerText = `${choicesIcons[c]} ${c}`;
+                    results.push({ team: t, result: choicesIcons[c] + ' ' + c });
+                });
+                updateResultsDisplay(results);
+            };
+        }
+
+        /* ==================== GAME 2: REAKTIONS-BLITZ (SIMULTAN) ==================== */
+        function initGameBuzzer() {
+            const area = document.getElementById('game-active-area');
+            const teams = getActiveTeams();
+            let state = 'waiting';
+            let timer = null;
+            let startTime = 0;
+            let rankings = [];
+
+            let html = `
+                <div class="w-full text-center space-y-4">
+                    <div id="buzzer-box" class="nb-card bg-neo-red text-white p-8 md:p-12 transition-all cursor-pointer">
+                        <h3 id="buzzer-status" class="text-3xl md:text-5xl font-black uppercase">Auf Signal warten...</h3>
+                        <p class="text-xs md:text-sm mt-2 opacity-80">Gleich wird die Box GRÜN! Alle Teams buzzern zeitgleich per Taste oder Button!</p>
+                    </div>
+
+                    <div class="grid grid-cols-2 md:grid-cols-${Math.min(teams.length, 6)} gap-2 mt-4">
+            `;
+
+            teams.forEach(t => {
+                html += `
+                    <button onclick="teamBuzzerPress(${t.id})" class="nb-btn p-3 flex flex-col items-center justify-center text-center" style="background-color: ${t.color}">
+                        <span class="text-xs font-black">Taste [${t.shortcut}]</span>
+                        <span class="font-black text-sm md:text-base">${t.name}</span>
+                        <span id="buzzer-time-${t.id}" class="text-xs mt-1 font-extrabold">--</span>
+                    </button>
+                `;
+            });
+
+            html += `</div></div>`;
+            area.innerHTML = html;
+
+            const box = document.getElementById('buzzer-box');
+            const status = document.getElementById('buzzer-status');
+
+            const delay = Math.floor(Math.random() * 3000) + 2000;
+            timer = setTimeout(() => {
+                state = 'ready';
+                box.className = "nb-card bg-neo-green text-black p-8 md:p-12 animate-pulse-fast cursor-pointer";
+                status.innerText = "JETZT BUZZERN! 🔥";
+                startTime = performance.now();
+                playBeep(880, 'square', 0.2);
+            }, delay);
+
+            window.activeGameCleanup = () => clearTimeout(timer);
+
+            function teamBuzzerPress(teamId) {
+                const team = teams.find(t => t.id === teamId);
+                if (!team || rankings.some(r => r.team.id === teamId)) return;
+
+                if (state === 'waiting') {
+                    playBuzzerSound();
+                    rankings.push({ team: team, result: 'FRÜHSTART! ❌', ms: 99999 });
+                    document.getElementById(`buzzer-time-${teamId}`).innerText = 'Frühstart!';
+                } else if (state === 'ready') {
+                    const diff = Math.round(performance.now() - startTime);
+                    playBeep(1000 - rankings.length * 100, 'sine', 0.1);
+                    rankings.push({ team: team, result: `${diff} ms ⚡`, ms: diff });
+                    document.getElementById(`buzzer-time-${teamId}`).innerText = `${diff} ms`;
+                }
+
+                updateResultsDisplay(rankings);
+
+                if (rankings.length === teams.length) {
+                    state = 'finished';
+                    playFanfare();
+                    status.innerText = "FINISH!";
+                }
+            }
+
+            window.teamBuzzerPress = teamBuzzerPress;
+
+            window.gameKeyHandler = (key) => {
+                const t = teams.find(team => team.shortcut === key);
+                if (t) teamBuzzerPress(t.id);
+            };
+        }
+
+        /* ==================== GAME 3: TOUCH ROULETTE (SIMULTAN) ==================== */
+        function initGameFinger() {
+            const area = document.getElementById('game-active-area');
+            const teams = getActiveTeams();
+            let touched = new Set();
+            let countdown = null;
+
+            let html = `
+                <div class="w-full text-center space-y-4">
+                    <p class="font-black text-sm">Alle Teams: Haltet eure Buttons/Tasten gedrückt! Der Zufall wählt aus!</p>
+                    <div id="finger-timer" class="text-4xl font-black text-neo-pink">3</div>
+
+                    <div class="grid grid-cols-2 md:grid-cols-${Math.min(teams.length, 3)} gap-4">
+            `;
+
+            teams.forEach(t => {
+                html += `
+                    <div id="finger-btn-${t.id}" 
+                         onclick="toggleFinger(${t.id})"
+                         class="nb-card p-6 text-center cursor-pointer select-none transition-all"
+                         style="background-color: ${t.color}">
+                        <div class="text-3xl">👆</div>
+                        <div class="font-black text-base mt-2">${t.name} (${t.shortcut})</div>
+                        <div id="finger-status-${t.id}" class="text-xs font-bold mt-1">Gedrückt halten</div>
+                    </div>
+                `;
+            });
+
+            html += `</div></div>`;
+            area.innerHTML = html;
+
+            window.toggleFinger = (teamId) => {
+                if (touched.has(teamId)) {
+                    touched.delete(teamId);
+                    document.getElementById(`finger-btn-${teamId}`).style.opacity = '1';
+                    document.getElementById(`finger-status-${teamId}`).innerText = 'Inaktiv';
+                } else {
+                    touched.add(teamId);
+                    playBeep(500, 'sine', 0.1);
+                    document.getElementById(`finger-btn-${teamId}`).style.opacity = '0.5';
+                    document.getElementById(`finger-status-${teamId}`).innerText = 'BEREIT! ✋';
+                }
+
+                if (touched.size >= 2 && !countdown) {
+                    startFingerCountdown();
+                }
+            };
+
+            function startFingerCountdown() {
+                let left = 3;
+                const timerEl = document.getElementById('finger-timer');
+                countdown = setInterval(() => {
+                    left--;
+                    if (left > 0) {
+                        timerEl.innerText = left;
+                        playBeep(400, 'sine', 0.1);
+                    } else {
+                        clearInterval(countdown);
+                        evaluateFinger();
+                    }
+                }, 1000);
+            }
+
+            function evaluateFinger() {
+                playFanfare();
+                const activeArray = Array.from(touched);
+                const chosenId = activeArray[Math.floor(Math.random() * activeArray.length)];
+                
+                teams.forEach(t => {
+                    const btn = document.getElementById(`finger-btn-${t.id}`);
+                    if (t.id === chosenId) {
+                        btn.className = "nb-card p-6 text-center bg-neo-yellow animate-pulse-fast";
+                        document.getElementById(`finger-status-${t.id}`).innerText = "GEWÄHLT! 👑";
+                    } else {
+                        btn.style.opacity = "0.3";
+                    }
+                });
+
+                const winner = teams.find(t => t.id === chosenId);
+                updateResultsDisplay([{ team: winner, result: 'AUSGEWÄHLT! 🎉' }]);
+            }
+
+            window.gameKeyHandler = (key) => {
+                const t = teams.find(team => team.shortcut === key);
+                if (t) window.toggleFinger(t.id);
+            };
+        }
+
+        /* ==================== GAME 4: BUTTON-MASHING-RENNEN (SIMULTAN) ==================== */
+        function initGameMashing() {
+            const area = document.getElementById('game-active-area');
+            const teams = getActiveTeams();
+            let clicks = {};
+            teams.forEach(t => clicks[t.id] = 0);
+            let isRunning = false;
+            let timer = null;
+
+            let html = `
+                <div class="w-full text-center space-y-4">
+                    <div id="mashing-status" class="text-2xl font-black uppercase">Simultanes Button Spamming!</div>
+                    <button id="mashing-start-btn" onclick="startMashingRace()" class="nb-btn bg-neo-yellow text-xl px-8 py-3">
+                        Rennen Starten (5s)!
+                    </button>
+
+                    <div class="space-y-3 mt-4">
+            `;
+
+            teams.forEach(t => {
+                html += `
+                    <div class="nb-card p-2 bg-white flex items-center gap-3">
+                        <button onclick="registerMashClick(${t.id})" class="nb-btn px-4 py-2 text-xs font-black" style="background-color: ${t.color}">
+                            ${t.name} (${t.shortcut})
+                        </button>
+                        <div class="flex-1 bg-gray-200 h-8 rounded-lg overflow-hidden border-2 border-black relative">
+                            <div id="mash-bar-${t.id}" class="h-full transition-all duration-75" style="width: 0%; background-color: ${t.color}"></div>
+                        </div>
+                        <span id="mash-count-${t.id}" class="font-black text-lg w-12">0</span>
+                    </div>
+                `;
+            });
+
+            html += `</div></div>`;
+            area.innerHTML = html;
+
+            window.startMashingRace = () => {
+                isRunning = true;
+                document.getElementById('mashing-start-btn').classList.add('hidden');
+                document.getElementById('mashing-status').innerText = "LOS! ALLE TASTEN SPAMMEN! 🔥";
+                playBeep(880, 'square', 0.2);
+
+                let left = 5.0;
+                timer = setInterval(() => {
+                    left -= 0.1;
+                    if (left <= 0) {
+                        clearInterval(timer);
+                        isRunning = false;
+                        playFanfare();
+                        document.getElementById('mashing-status').innerText = "ZEIT ABGELAUFEN!";
+
+                        const sorted = teams.map(t => ({ team: t, count: clicks[t.id] })).sort((a, b) => b.count - a.count);
+                        updateResultsDisplay(sorted.map(s => ({ team: s.team, result: `${s.count} Klicks` })));
+                    }
+                }, 100);
+            };
+
+            window.registerMashClick = (teamId) => {
+                if (!isRunning) return;
+                clicks[teamId]++;
+                playBeep(400 + clicks[teamId] * 10, 'sine', 0.05);
+                document.getElementById(`mash-count-${teamId}`).innerText = clicks[teamId];
+                const pct = Math.min((clicks[teamId] / 40) * 100, 100);
+                document.getElementById(`mash-bar-${teamId}`).style.width = `${pct}%`;
+            };
+
+            window.gameKeyHandler = (key) => {
+                const t = teams.find(team => team.shortcut === key);
+                if (t) window.registerMashClick(t.id);
+            };
+        }
+
+        /* ==================== GAME 5: SIMULTANES KARTEN-ZIEHEN ==================== */
+        function initGameCards() {
+            const area = document.getElementById('game-active-area');
+            const teams = getActiveTeams();
+
+            let html = `
+                <div class="w-full text-center space-y-4">
+                    <p class="font-black text-sm">Alle Teams ziehen auf 3 simultan eine verdeckte Karte!</p>
+                    
+                    <button onclick="drawAllCards()" class="nb-btn bg-neo-pink text-xl px-8 py-3 font-black">
+                        🃏 SIMULTAN KARTEN ZIEHEN!
+                    </button>
+
+                    <div class="grid grid-cols-2 md:grid-cols-${Math.min(teams.length, 6)} gap-3 mt-6">
+            `;
+
+            teams.forEach(t => {
+                html += `
+                    <div class="nb-card p-4 text-center" style="background-color: ${t.color}">
+                        <div class="font-black text-sm">${t.name}</div>
+                        <div id="card-val-${t.id}" class="text-4xl font-black my-4">🂠</div>
+                    </div>
+                `;
+            });
+
+            html += `</div></div>`;
+            area.innerHTML = html;
+
+            window.drawAllCards = () => {
+                const values = [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14];
+                const cardNames = { 11: 'J', 12: 'Q', 13: 'K', 14: 'A' };
+                let results = [];
+
+                teams.forEach(t => {
+                    const val = values[Math.floor(Math.random() * values.length)];
+                    const display = cardNames[val] || val.toString();
+                    document.getElementById(`card-val-${t.id}`).innerText = display;
+                    results.push({ team: t, score: val, result: `Karte: ${display}` });
+                });
+
+                playFanfare();
+                results.sort((a, b) => b.score - a.score);
+                updateResultsDisplay(results);
+            };
+        }
+
+        /* ==================== GAME 6: 5.00s ZEIT-GEFÜHL (SIMULTAN/REIHENFOLGE) ==================== */
+        function initGameTimer5s() {
+            const area = document.getElementById('game-active-area');
+            const teams = getActiveTeams();
+            let teamStates = {};
+
+            teams.forEach(t => {
+                teamStates[t.id] = { running: false, startTime: 0, stopped: null, diff: null };
+            });
+
+            let html = `
+                <div class="w-full text-center space-y-4">
+                    <p class="font-black text-sm">Jedes Team startet & stoppt blind bei genau 5,00 Sekunden!</p>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-${Math.min(teams.length, 3)} gap-4">
+            `;
+
+            teams.forEach(t => {
+                html += `
+                    <div class="nb-card p-4 text-center" style="background-color: ${t.color}">
+                        <h4 class="font-black text-base">${t.name} (${t.shortcut})</h4>
+                        <div id="timer-display-${t.id}" class="text-4xl font-black my-3">0.00s</div>
+                        <button id="timer-btn-${t.id}" onclick="triggerTimerTeam(${t.id})" class="nb-btn bg-white px-4 py-2 font-black text-sm">
+                            START
+                        </button>
+                    </div>
+                `;
+            });
+
+            html += `</div></div>`;
+            area.innerHTML = html;
+
+            window.triggerTimerTeam = (teamId) => {
+                const st = teamStates[teamId];
+                const btn = document.getElementById(`timer-btn-${teamId}`);
+                const display = document.getElementById(`timer-display-${teamId}`);
+
+                if (!st.running && st.stopped === null) {
+                    st.running = true;
+                    st.startTime = performance.now();
+                    btn.innerText = "BLIND STOPP!";
+                    btn.className = "nb-btn bg-neo-red text-white px-4 py-2 font-black text-sm";
+
+                    st.interval = setInterval(() => {
+                        const elapsed = (performance.now() - st.startTime) / 1000;
+                        if (elapsed > 1.5) {
+                            display.innerText = "???";
+                        } else {
+                            display.innerText = elapsed.toFixed(2) + "s";
+                        }
+                    }, 50);
+                } else if (st.running) {
+                    clearInterval(st.interval);
+                    st.running = false;
+                    st.stopped = (performance.now() - st.startTime) / 1000;
+                    st.diff = Math.abs(st.stopped - 5.00);
+
+                    playBeep(700, 'sine', 0.1);
+                    display.innerText = st.stopped.toFixed(2) + "s";
+                    btn.innerText = "FERTIG ✅";
+                    btn.disabled = true;
+
+                    checkAllTimerFinished();
+                }
+            };
+
+            function checkAllTimerFinished() {
+                const allDone = teams.every(t => teamStates[t.id].stopped !== null);
+                if (allDone) {
+                    playFanfare();
+                    const res = teams.map(t => ({
+                        team: t,
+                        result: `${teamStates[t.id].stopped.toFixed(2)}s (Abweichung: ${teamStates[t.id].diff.toFixed(2)}s)`,
+                        diff: teamStates[t.id].diff
+                    })).sort((a, b) => a.diff - b.diff);
+
+                    updateResultsDisplay(res);
+                }
+            }
+
+            window.gameKeyHandler = (key) => {
+                const t = teams.find(team => team.shortcut === key);
+                if (t) window.triggerTimerTeam(t.id);
+            };
+        }
+
+        /* ==================== GAME 7: FARB-CHAOS KO-TURNIER ==================== */
+        function initGameStroopTurnier() {
+            const area = document.getElementById('game-active-area');
+            const teams = getActiveTeams();
+
+            if (teams.length < 2) {
+                area.innerHTML = `<p class="font-black text-lg">Mindestens 2 Teams erforderlich!</p>`;
+                return;
+            }
+
+            let matchIndex = 0;
+            const matches = [];
+            for (let i = 0; i < teams.length - 1; i++) {
+                matches.push({ p1: teams[i], p2: teams[i + 1] });
+            }
+
+            let tournamentResults = [];
+
+            const colorOptions = [
+                { name: 'ROT', hex: '#FF5757', key: 'rot' },
+                { name: 'BLAU', hex: '#5271FF', key: 'blau' },
+                { name: 'GRÜN', hex: '#00FF66', key: 'grün' },
+                { name: 'GELB', hex: '#FFDE59', key: 'gelb' }
+            ];
+
+            let activeMatch = null;
+            let targetColorKey = null; // Correct answer is the target font color
+            let matchStartTime = 0;
+            let matchAnswered = false;
+            let cooldownTimer = null;
+
+            function renderMatch() {
+                if (matchIndex >= matches.length) {
+                    playFanfare();
+                    area.innerHTML = `
+                        <div class="text-center space-y-4">
+                            <h3 class="text-3xl font-black uppercase">KO-Turnier Beendet! 🎉</h3>
+                            <button onclick="initGameStroopTurnier()" class="nb-btn bg-neo-green px-6 py-3 font-black text-lg">Neues Turnier</button>
+                        </div>
+                    `;
+                    return;
+                }
+
+                activeMatch = matches[matchIndex];
+                matchAnswered = false;
+
+                // Pick word text and visual font color (random)
+                const textWord = colorOptions[Math.floor(Math.random() * colorOptions.length)];
+                const visualColor = colorOptions[Math.floor(Math.random() * colorOptions.length)];
+                targetColorKey = visualColor.key;
+
+                area.innerHTML = `
+                    <div class="w-full text-center space-y-4">
+                        <div class="flex justify-center items-center gap-4">
+                            <span class="nb-card p-2 font-black text-base md:text-lg" style="background-color: ${activeMatch.p1.color}">
+                                🤺 ${activeMatch.p1.name}
+                            </span>
+                            <span class="font-black text-2xl">VS</span>
+                            <span class="nb-card p-2 font-black text-base md:text-lg" style="background-color: ${activeMatch.p2.color}">
+                                🤺 ${activeMatch.p2.name}
+                            </span>
+                        </div>
+
+                        <p class="font-black text-sm bg-neo-yellow p-2 rounded border-2 border-black inline-block">
+                            ⚠️ ACHTUNG: Klicke die <u>SCHRIFTFARBE</u> (nicht das geschriebene Wort)!
+                        </p>
+
+                        <!-- Cooldown Overlay / Display -->
+                        <div id="stroop-cooldown-box" class="nb-card p-6 bg-neo-pink inline-block my-2 w-full max-w-xs text-center">
+                            <span class="text-xs font-black uppercase block mb-1">Karte wird aufgedeckt in...</span>
+                            <span id="stroop-countdown-text" class="text-5xl font-black">5</span>
+                        </div>
+
+                        <!-- Revealed Card Container (Hidden initially) -->
+                        <div id="stroop-card-box" class="nb-card p-8 bg-black inline-block my-2 hidden">
+                            <span class="text-5xl md:text-7xl font-black tracking-widest" style="color: ${visualColor.hex}">
+                                ${textWord.name}
+                            </span>
+                        </div>
+
+                        <!-- Buttons for Both Duellists (Disabled during cooldown) -->
+                        <div id="stroop-duell-buttons" class="grid grid-cols-1 md:grid-cols-2 gap-4 text-left mt-2 opacity-40 pointer-events-none transition-all">
+                            <!-- Team 1 Buttons -->
+                            <div class="nb-card p-3" style="background-color: ${activeMatch.p1.color}">
+                                <div class="font-black text-sm mb-2 text-center">${activeMatch.p1.name} - Wählen:</div>
+                                <div class="grid grid-cols-2 gap-2">
+                                    ${colorOptions.map(c => `
+                                        <button onclick="handleStroopAnswer(${activeMatch.p1.id}, '${c.key}')" 
+                                                class="nb-btn p-2 text-xs font-black bg-white hover:bg-gray-100 flex items-center justify-center gap-2">
+                                            <span class="w-3 h-3 rounded-full border border-black" style="background-color: ${c.hex}"></span>
+                                            ${c.name}
+                                        </button>
+                                    `).join('')}
+                                </div>
+                            </div>
+
+                            <!-- Team 2 Buttons -->
+                            <div class="nb-card p-3" style="background-color: ${activeMatch.p2.color}">
+                                <div class="font-black text-sm mb-2 text-center">${activeMatch.p2.name} - Wählen:</div>
+                                <div class="grid grid-cols-2 gap-2">
+                                    ${colorOptions.map(c => `
+                                        <button onclick="handleStroopAnswer(${activeMatch.p2.id}, '${c.key}')" 
+                                                class="nb-btn p-2 text-xs font-black bg-white hover:bg-gray-100 flex items-center justify-center gap-2">
+                                            <span class="w-3 h-3 rounded-full border border-black" style="background-color: ${c.hex}"></span>
+                                            ${c.name}
+                                        </button>
+                                    `).join('')}
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Round Feedback & Next Match Button Area -->
+                        <div id="stroop-feedback-area" class="hidden my-4 p-4 nb-card bg-neo-yellow text-center space-y-3">
+                            <h4 id="stroop-feedback-text" class="text-xl font-black"></h4>
+                            <button onclick="nextStroopMatch()" class="nb-btn bg-black text-white px-8 py-3 text-lg font-black">
+                                NÄCHSTES DUELL ➔
+                            </button>
+                        </div>
+                    </div>
+                `;
+
+                startStroopCooldown();
+            }
+
+            function startStroopCooldown() {
+                let secondsLeft = 5;
+                const countText = document.getElementById('stroop-countdown-text');
+
+                playBeep(400, 'sine', 0.1);
+
+                cooldownTimer = setInterval(() => {
+                    secondsLeft--;
+                    if (secondsLeft > 0) {
+                        if (countText) countText.innerText = secondsLeft;
+                        playBeep(400, 'sine', 0.1);
+                    } else {
+                        clearInterval(cooldownTimer);
+                        playBeep(880, 'square', 0.2);
+
+                        // Hide Cooldown, Reveal Card & Enable Buttons
+                        const cdBox = document.getElementById('stroop-cooldown-box');
+                        const cardBox = document.getElementById('stroop-card-box');
+                        const btns = document.getElementById('stroop-duell-buttons');
+
+                        if (cdBox) cdBox.classList.add('hidden');
+                        if (cardBox) cardBox.classList.remove('hidden');
+                        if (btns) btns.classList.remove('opacity-40', 'pointer-events-none');
+
+                        matchStartTime = performance.now();
+                    }
+                }, 1000);
+            }
+
+            window.activeGameCleanup = () => {
+                if (cooldownTimer) clearInterval(cooldownTimer);
+            };
+
+            renderMatch();
+
+            window.handleStroopAnswer = (teamId, selectedKey) => {
+                if (matchAnswered) return;
+                matchAnswered = true;
+
+                const elapsed = ((performance.now() - matchStartTime) / 1000).toFixed(2);
+                const team = teams.find(t => t.id === teamId);
+                const feedbackArea = document.getElementById('stroop-feedback-area');
+                const feedbackText = document.getElementById('stroop-feedback-text');
+                document.getElementById('stroop-duell-buttons').classList.add('opacity-40', 'pointer-events-none');
+
+                if (selectedKey === targetColorKey) {
+                    playBeep(800, 'sine', 0.2);
+                    feedbackText.innerText = `🎯 Richtig! ${team.name} holt den Punkt in ${elapsed}s!`;
+                    tournamentResults.push({ team: team, result: `Richtig! 🎯 (${elapsed}s)` });
+                } else {
+                    playBuzzerSound();
+                    const opponent = (team.id === activeMatch.p1.id) ? activeMatch.p2 : activeMatch.p1;
+                    feedbackText.innerText = `❌ Falsch von ${team.name}! Punkt geht an ${opponent.name}!`;
+                    tournamentResults.push({ team: opponent, result: `Gegner-Fehler! Punkt für ${opponent.name}` });
+                }
+
+                feedbackArea.classList.remove('hidden');
+                updateResultsDisplay(tournamentResults);
+            };
+
+            window.nextStroopMatch = () => {
+                matchIndex++;
+                renderMatch();
+            };
+        }
+
+        /* ==================== GAME 8: SCHÄTZFRAGEN SHOWDOWN (100 FRAGEN & MASKIERUNG) ==================== */
+        const SCHATZ_FRAGEN_100 = [
+            { q: "Wie viele Sekunden hat ein Tag?", a: 86400 },
+            { q: "Wie viele Knochen hat der menschliche Körper?", a: 206 },
+            { q: "Wie viele Kilometer hat der Äquatorumfang der Erde ca.?", a: 40075 },
+            { q: "In welchem Jahr landete Apollo 11 auf dem Mond?", a: 1969 },
+            { q: "Wie viele Zähne hat ein ausgewachsener Mensch gewöhnlich?", a: 32 },
+            { q: "Wie viele Felder hat ein Schachbrett?", a: 64 },
+            { q: "Wie viele Meter ist der Eiffelturm hoch (ca.)?", a: 330 },
+            { q: "In welchem Jahr fiel die Berliner Mauer?", a: 1989 },
+            { q: "Wie viele Bundesländer hat Deutschland?", a: 16 },
+            { q: "Wie viele Karten hat ein Skatblatt?", a: 32 },
+            { q: "Wie viele Planeten hat unser Sonnensystem?", a: 8 },
+            { q: "In welchem Jahr sank die Titanic?", a: 1912 },
+            { q: "Wie viele Herzen hat ein Oktopus?", a: 3 },
+            { q: "Wie viele Minuten dauert ein reguläres Fußballspiel?", a: 90 },
+            { q: "Wie viele Tasten hat ein Standard-Klavier?", a: 88 },
+            { q: "Wie viele Meter ist der Mount Everest hoch (ca.)?", a: 8848 },
+            { q: "In welchem Jahr wurde die Europäische Union gegründet (Maastricht)?", a: 1992 },
+            { q: "Wie viele Elemente hat das Periodensystem offiziell?", a: 118 },
+            { q: "Wie viele Beine hat eine Spinne?", a: 8 },
+            { q: "Wie viele Wochen hat ein Jahr gewöhnlich?", a: 52 },
+            { q: "Wie viele Meter lang ist ein olympisches Schwimmbecken?", a: 50 },
+            { q: "In welchem Jahr begann der Erste Weltkrieg?", a: 1914 },
+            { q: "Wie viele Ringe bilden das olympische Symbol?", a: 5 },
+            { q: "Wie viele Muskeln hat der menschliche Körper ca.?", a: 650 },
+            { q: "Wie viele Liter Blut hat ein erwachsener Mensch ca.?", a: 5 },
+            { q: "In welchem Jahr wurde die D-Mark durch den Euro ersetzt?", a: 2002 },
+            { q: "Wie viele Saiten hat eine klassische Gitarre?", a: 6 },
+            { q: "Wie viele Zeitzonen gibt es auf der Erde?", a: 24 },
+            { q: "Wie viele Kilometer liegt der Mond von der Erde entfernt (in Tausend km ca.)?", a: 384 },
+            { q: "In welchem Jahr erschien das erste iPhone?", a: 2007 },
+            { q: "Wie viele Figuren hat jeder Spieler zu Beginn einer Schachpartie?", a: 16 },
+            { q: "Wie viele Staaten hat die USA?", a: 50 },
+            { q: "Wie viele Zwerge begleiten Schneewittchen?", a: 7 },
+            { q: "In welchem Jahr endete der Zweite Weltkrieg?", a: 1945 },
+            { q: "Wie viele Kanten hat ein Würfel?", a: 12 },
+            { q: "Wie viele Augen hat ein Wurf auf zwei Standard-Würfeln maximal?", a: 12 },
+            { q: "Wie viele Ziffern hat eine deutsche IBAN gewöhnlich?", a: 22 },
+            { q: "Wie viele Grad hat ein Vollkreis?", a: 360 },
+            { q: "Wie viele Mondphasen unterscheidet man gewöhnlich?", a: 8 },
+            { q: "In welchem Jahr trat das Grundgesetz für die Bundesrepublik Deutschland in Kraft?", a: 1949 },
+            { q: "Wie viele Kilometer ist die Grenze zwischen Deutschland und Frankreich lang (ca.)?", a: 448 },
+            { q: "Wie viele Planeten in unserem Sonnensystem haben Ringe?", a: 4 },
+            { q: "Wie viele Goldmedaillen gewann Michael Phelps insgesamt bei Olympia?", a: 23 },
+            { q: "In welchem Jahr wurde Wikipedia gegründet?", a: 2001 },
+            { q: "Wie viele Atemzüge macht ein Mensch ca. pro Tag (in Tausend)?", a: 20 },
+            { q: "Wie viele Ecken hat ein Stoppschild?", a: 8 },
+            { q: "Wie viele Spieler stehen bei einer Volleyballmannschaft gleichzeitig auf dem Feld?", a: 6 },
+            { q: "Wie viele Herzen hat ein Regenwurm ca.?", a: 5 },
+            { q: "Wie viele Zentimeter misst ein Fuß (Einheit ft ca.)?", a: 30 },
+            { q: "In welchem Jahr wurde Google gegründet?", a: 1998 },
+            { q: "Wie viele Zeichen hat ein gewöhnlicher Barcode (EAN-13)?", a: 13 },
+            { q: "Wie viele Strophen hat die deutsche Nationalhymne offiziell?", a: 3 },
+            { q: "Wie viele Liter Wasser fasst ein Standard-Badewanne ca.?", a: 150 },
+            { q: "Wie viele Tage hat ein Schaltjahr?", a: 366 },
+            { q: "In welchem Jahr wurde die Berliner Mauer gebaut?", a: 1961 },
+            { q: "Wie viele Chromosomen hat ein gesunder Mensch?", a: 46 },
+            { q: "Wie viele Zähne hat ein Raubkatzen-Gebiss (z.B. Löwe) ca.?", a: 30 },
+            { q: "Wie viele Bahnen hat eine olympische Aschenbahn?", a: 8 },
+            { q: "In welchem Jahr entdeckte Kolumbus Amerika?", a: 1492 },
+            { q: "Wie viele Gramm wiegt ein offizieller Tischtennisball ca.?", a: 3 },
+            { q: "Wie viele Milliliter sind in einem US-Gallone ca.?", a: 3785 },
+            { q: "Wie viele Sternbilder erkennt die Internationale Astronomische Union offiziell an?", a: 88 },
+            { q: "Wie viele Mitglieder hat der Deutsche Bundestag mindestens (Direktmandate Basis)?", a: 598 },
+            { q: "In welchem Jahr lief der erste Harry Potter Film im Kino an?", a: 2001 },
+            { q: "Wie viele Bundeskanzler hatte Deutschland seit 1949 bis 2024?", a: 9 },
+            { q: "Wie viele Kilometer pro Stunde ist die Schallgeschwindigkeit in der Luft ca.?", a: 1235 },
+            { q: "Wie viele Tasten hat ein Standard-Computer-Tastenfeld (Numpad inkl.) ca.?", a: 104 },
+            { q: "Wie viele Spieler hat ein Rugby-Union-Team auf dem Feld?", a: 15 },
+            { q: "In welchem Jahr wurde die erste E-Mail gesendet?", a: 1971 },
+            { q: "Wie viele Flossen hat ein Haifisch typischerweise?", a: 8 },
+            { q: "Wie viele Meter ist der Fernsehturm in Berlin hoch?", a: 368 },
+            { q: "Wie viele Oscars gewann der Film 'Titanic'?", a: 11 },
+            { q: "Wie viele Mitgliedstaaten hat die NATO aktuell ca.?", a: 32 },
+            { q: "In welchem Jahr wurde die Bundeswehr gegründet?", a: 1955 },
+            { q: "Wie viele Punkte ist das rote Bullseye im Darts wert?", a: 50 },
+            { q: "Wie viele Rippen hat der menschliche Brustkorb insgesamt?", a: 24 },
+            { q: "Wie viele Muskeln nutzt der Mensch zum Lächeln ca.?", a: 17 },
+            { q: "In welchem Jahr wurde YouTube gestartet?", a: 2005 },
+            { q: "Wie viele Ziegelsteine stecken im Empire State Building (in Millionen ca.)?", a: 10 },
+            { q: "Wie viele Saiten hat ein Cellos?", a: 4 },
+            { q: "Wie viele Inseln gehören zu Hawaii (Hauptinseln)?", a: 8 },
+            { q: "In welchem Jahr wurde das Internet öffentlich zugänglich (World Wide Web)?", a: 1991 },
+            { q: "Wie viele Stiche hat ein gewöhnlicher Baseball?", a: 108 },
+            { q: "Wie viele Liter Milch gibt eine Kuh durchschnittlich pro Tag ca.?", a: 25 },
+            { q: "Wie viele Grammatik-Kausal-Fälle (Kasus) gibt es im Deutschen?", a: 4 },
+            { q: "Wie viele Meilen sind ein Marathon (ca.)?", a: 26 },
+            { q: "In welchem Jahr erlangte Indien seine Unabhängigkeit?", a: 1947 },
+            { q: "Wie viele Kalorien hat ein Gramm Fett ca.?", a: 9 },
+            { q: "Wie viele Haupt-Geschmacksrichtungen kann die Zunge unterscheiden?", a: 5 },
+            { q: "Wie viele Jahre dauerte der Dreißigjährige Krieg?", a: 30 },
+            { q: "In welchem Jahr startete die Concorde ihren ersten kommerziellen Flug?", a: 1976 },
+            { q: "Wie viele Beine hat ein Tausendfüßler im Durchschnitt ca.?", a: 200 },
+            { q: "Wie viele Loch hat ein Standard-Golfplatz?", a: 18 },
+            { q: "In welchem Jahr fiel die Atombombe auf Hiroshima?", a: 1945 },
+            { q: "Wie viele Liter Wasser stecken in einem Kilo Rindfleisch ca. (in Tausend)?", a: 15 },
+            { q: "Wie viele Hauptzeitzonen hat Russland?", a: 11 },
+            { q: "In welchem Jahr erfand Gutenberg den Buchdruck ca.?", a: 1440 },
+            { q: "Wie viele Sekunden dauert ein Lichtjahr (in Milliarden)?", a: 31536 },
+            { q: "Wie viele Zähne hat ein Elefant im Mund gleichzeitig im Einsatz?", a: 4 },
+            { q: "In welchem Jahr wurde das Computerspiel Tetris erfunden?", a: 1984 }
+        ];
+
+        function initGameSchatz(stechenTeams = null) {
+            const area = document.getElementById('game-active-area');
+            const teams = stechenTeams || getActiveTeams();
+
+            const currentQ = SCHATZ_FRAGEN_100[Math.floor(Math.random() * SCHATZ_FRAGEN_100.length)];
+            let submissions = {};
+
+            let html = `
+                <div class="w-full text-center space-y-4 max-w-xl">
+                    ${stechenTeams ? `<div class="bg-neo-red text-white font-black p-2 rounded border-2 border-black animate-pulse-fast">⚠️ STECHEN BEI GLEICHSTAND! Neue Frage:</div>` : ''}
+                    <div class="nb-card bg-neo-yellow p-4 text-center">
+                        <span class="text-xs font-black uppercase bg-black text-white px-2 py-1 rounded mb-1 inline-block">Schätzfrage</span>
+                        <h3 class="text-lg md:text-xl font-black uppercase mt-1">${currentQ.q}</h3>
+                    </div>
+
+                    <p class="font-black text-xs md:text-sm">Gibt eure Schätzung ein & klickt "Bestätigen". Wer am nächsten dran ist gewinnt!</p>
+
+                    <div class="grid grid-cols-1 md:grid-cols-${Math.min(teams.length, 3)} gap-3">
+            `;
+
+            teams.forEach(t => {
+                html += `
+                    <div class="nb-card p-3 text-center" style="background-color: ${t.color}">
+                        <div class="font-black text-xs mb-1">${t.name}</div>
+                        <div id="guess-input-wrapper-${t.id}">
+                            <input type="number" id="guess-input-${t.id}" class="nb-input p-2 w-full text-center text-sm font-black mb-2" placeholder="Zahl...">
+                            <button id="guess-btn-${t.id}" onclick="submitGuess(${t.id})" class="nb-btn bg-white w-full py-1 text-xs font-black">
+                                Bestätigen 🔒
+                            </button>
+                        </div>
+                    </div>
+                `;
+            });
+
+            html += `</div>
+                <button id="schatz-eval-btn" onclick="evaluateGuesses()" class="nb-btn bg-neo-green px-6 py-3 font-black text-base mt-4 hidden">
+                    <i class="fa-solid fa-calculator"></i> ERGEBNISSE SIMULTAN AUFLÖSEN
+                </button>
+            </div>`;
+
+            area.innerHTML = html;
+
+            window.submitGuess = (teamId) => {
+                const inputEl = document.getElementById(`guess-input-${teamId}`);
+                const val = parseInt(inputEl.value);
+                if (isNaN(val)) return;
+
+                submissions[teamId] = { val: val };
+
+                playBeep(600, 'sine', 0.1);
+                
+                // Mask the input completely so other teams cannot see
+                const wrapper = document.getElementById(`guess-input-wrapper-${teamId}`);
+                wrapper.innerHTML = `
+                    <div class="nb-card bg-black text-white p-3 font-black text-sm my-1 flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-lock text-neo-yellow"></i> Verdeckt
+                    </div>
+                `;
+
+                if (Object.keys(submissions).length === teams.length) {
+                    document.getElementById('schatz-eval-btn').classList.remove('hidden');
+                }
+            };
+
+            window.evaluateGuesses = () => {
+                let results = [];
+
+                teams.forEach(t => {
+                    const sub = submissions[t.id] || { val: 0 };
+                    const diff = Math.abs(sub.val - currentQ.a);
+                    results.push({
+                        team: t,
+                        guess: sub.val,
+                        diff: diff,
+                        result: `Tipp: ${sub.val} (Lösung: ${currentQ.a} | Abw: ${diff})`
+                    });
+                });
+
+                // Sort purely by lowest difference
+                results.sort((a, b) => a.diff - b.diff);
+
+                // Check for tie among the best score
+                const bestDiff = results[0].diff;
+                const winners = results.filter(r => r.diff === bestDiff);
+
+                if (winners.length > 1 && teams.length > 1) {
+                    playBuzzerSound();
+                    updateResultsDisplay([{ team: { name: 'GLEICHSTAND', color: '#FF914D' }, result: `Gleichstand bei Abweichung ${bestDiff}! Stechen wird geladen...` }]);
+                    setTimeout(() => {
+                        initGameSchatz(winners.map(w => w.team));
+                    }, 2500);
+                } else {
+                    playFanfare();
+                    updateResultsDisplay(results);
+                }
+            };
+        }
+
+        /* ==================== GAME 9: TONHÖHEN-SENSOR (SCHNELLIGKEIT ZÄHLT BEI GLEICHER ANTWORT) ==================== */
+        function initGameSound() {
+            const area = document.getElementById('game-active-area');
+            const teams = getActiveTeams();
+
+            const pitch1 = Math.floor(Math.random() * 400) + 300;
+            const pitch2 = Math.floor(Math.random() * 400) + 300;
+            const isSecondHigher = pitch2 > pitch1;
+
+            let soundVotes = {};
+            let startTime = performance.now();
+
+            area.innerHTML = `
+                <div class="w-full text-center space-y-6">
+                    <p class="font-black text-sm">Höre beide Töne! War der 2. TON HÖHER oder TIEFER? (Schnelligkeit entscheidet bei gleicher Antwort!)</p>
+
+                    <div class="flex justify-center gap-4">
+                        <button onclick="playBeep(${pitch1}, 'sine', 0.5)" class="nb-btn bg-neo-yellow px-6 py-3 font-black">
+                            🔊 TON 1 ABSPIELEN
+                        </button>
+                        <button onclick="playBeep(${pitch2}, 'sine', 0.5)" class="nb-btn bg-neo-cyan px-6 py-3 font-black">
+                            🔊 TON 2 ABSPIELEN
+                        </button>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-${Math.min(teams.length, 3)} gap-3">
+                        ${teams.map(t => `
+                            <div class="nb-card p-3 text-center" style="background-color: ${t.color}">
+                                <div class="font-black text-xs mb-2">${t.name}</div>
+                                <div id="sound-team-box-${t.id}" class="flex justify-center gap-1">
+                                    <button onclick="voteSound(${t.id}, true)" class="nb-btn bg-white px-3 py-1 text-xs">HÖHER ⬆️</button>
+                                    <button onclick="voteSound(${t.id}, false)" class="nb-btn bg-white px-3 py-1 text-xs">TIEFER ⬇️</button>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+
+                    <button onclick="evalSoundAnswer(${isSecondHigher})" class="nb-btn bg-neo-green px-6 py-3 font-black text-lg">
+                        SIMULTAN AUFLÖSEN
+                    </button>
+                </div>
+            `;
+
+            window.voteSound = (teamId, ans) => {
+                if (soundVotes[teamId]) return;
+                const elapsed = (performance.now() - startTime) / 1000;
+                soundVotes[teamId] = { ans: ans, time: elapsed };
+                playBeep(600, 'sine', 0.1);
+                document.getElementById(`sound-team-box-${teamId}`).innerHTML = `<span class="font-black text-xs bg-black text-white px-2 py-1 rounded">✅ Eingeloggt (${elapsed.toFixed(2)}s)</span>`;
+            };
+
+            window.evalSoundAnswer = (correctIsHigher) => {
+                playFanfare();
+                let res = [];
+                teams.forEach(t => {
+                    const vote = soundVotes[t.id] || { ans: null, time: 999 };
+                    const correct = vote.ans === correctIsHigher;
+                    res.push({
+                        team: t,
+                        correct: correct,
+                        time: vote.time,
+                        result: correct ? `RICHTIG! 🎯 (${vote.time.toFixed(2)}s)` : 'FALSCH ❌'
+                    });
+                });
+
+                // Primary sort: Correct answers first. Secondary sort: Faster time!
+                res.sort((a, b) => {
+                    if (a.correct !== b.correct) return b.correct - a.correct;
+                    return a.time - b.time;
+                });
+
+                updateResultsDisplay(res);
+            };
+        }
+    </script>
+</body>
+</html>
